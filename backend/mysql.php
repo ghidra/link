@@ -1,12 +1,12 @@
 <?php
 class mysql{
-	var $user=array();
-	var $conn;
-	var $database_name='';
 
-	public function __construct($mysql_database_name){
-		$this->database_name = $mysql_database_name;
+	var $conn;
+	var $user_table = '';
+
+	public function __construct(){
 		include_once('mysql_login.php');
+		$this->user_table = $mysql_user_table;
 		$this->conn = mysqli_connect ($mysql_host, $mysql_user, $mysql_pass) or die ("I cannot connect to the database because: " . mysqli_error($this->conn));
 		mysqli_select_db ($this->conn,$mysql_database_name) or die ("I cannot select the database '$mysql_database_name' because: " . mysqli_error($this->conn));
 	}
@@ -28,30 +28,29 @@ class mysql{
 		if(!$this->table_exists($table)) $this->create_users_table($table);//create the table if it ain't already there
 		//I need to make sure that there isn't already a user with the same name. so that it isn't input twice
 		$passwordhashed = sha1($password);
-		$query = "INSERT INTO '$user' (user, password, permission) 
-				  VALUES ('$user', '$passwordhashed', '$permission')";
+		$query = "INSERT INTO $table (user, password, permission) VALUES ('$user', '$passwordhashed', $permission)";
 	
-		mysqli_query($query) or die('Error, creating user ' . mysqli_error());    
+		mysqli_query($this->conn,$query) or die('Error, creating user ' . mysqli_error($this->conn));    
 	}
-	public function get_user_password($user){
-		// $all_users = mysqli_query("SELECT * FROM tentacle_users ORDER BY id DESC") or die( mysql_error());//get info from album table
-		// while($au = mysql_fetch_array( $all_users )){
-		// 	if($au['user']==$user) {//this user does indeed exists
-		// 		return $au['password'] ;
-		// 	}else{
-		// 		return 'denied';//no user	
-		// 	}
-		// }
+	public function get_user_password($table,$user){
+		$all_users = mysqli_query($this->conn,"SELECT * FROM $table ORDER BY id DESC") or die( mysqli_error($this->conn));//get info from album table
+		while($au = mysqli_fetch_array( $all_users )){
+			if($au['user']==$user) {//this user does indeed exists
+				return $au['password'] ;
+			}else{
+				return 'denied';//no user	
+			}
+		}
 	}
 
 	////create database stuff
-	function create_users_table($name){
-		mysqli_query("CREATE TABLE $name(
+	function create_users_table($table){
+		mysqli_query($this->conn,"CREATE TABLE $table(
 			id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			user VARCHAR(36) NOT NULL,
 			password VARCHAR(44) NOT NULL,
 			permission TINYINT(1) NOT NULL
-			)")or die (mysqli_error());
+			)")or die (mysqli_error($this->conn));
 	}
 }
 ?>

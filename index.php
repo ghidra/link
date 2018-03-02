@@ -1,21 +1,27 @@
 <?php
 
-define('mysql_database_name','link');
-
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
 
 //session_start();
-require_once 'mysql.php';
-require_once 'login.php';
-$mysql = new mysql(mysql_database_name);
-$login = new login($mysql,'link_users',$_POST);
+require_once 'mysql_link.php';
+require_once 'backend/login.php';
+$mysql = new mysql_link();
+$login = new login($mysql,$_POST);
+
+// foreach($_POST as $key=> $value){
+// 	echo $value;//$_POST[$key];
+// }
 if(!$login->logged_in){
 	echo $login->get_login_page();
 }else{
 	echo "logged in";
 }
+
+//$_SESSION['logged_in']=false;
+echo $_SESSION['logged_in'];
+
 //------if we are loging into tentacle
 // $errMsg = '';
 // if (isset($_POST['txtUserid'])) {
