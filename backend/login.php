@@ -14,11 +14,10 @@ class login{
 		$this->mysql=$mysql;
 		$this->user_table = $mysql->user_table;
 
-		if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == false) {
+		if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == false)
 	      	$this->check_post_data($post);
-	    }else{
+	    else
 	    	$logged_in = true;
-	    }
 		
 	}
 
@@ -53,36 +52,25 @@ class login{
 		$setup=$this->mysql->table_exists($this->user_table);
 		if(!$setup){//if we have not been set up before, fill out the nessisary information to proceed
 			//html_head('link password setup');
-			$page.= '<div style="width:200px;margin-left:auto;margin-right:auto;margin-top:16px">You are new to Link, and have not set up a user.';
+			$page.= '<div >You are new to Link, and have not set up a user.';
 			$page.= ' Please take the time now to enter a user name and password so that you can have access to';
-			$page.= ' the Link interface.</div><br>';
+			$page.= ' the Link interface.</div>';
 
 			///make 3 fields, one user name, 2 passwords
-			$page.='<div style="width:100px;margin-left:auto;margin-right:auto;text-align:center;margin-top:16px;">
- 			register new user:<br>
+			$page.='<div class="login_form">
+ 			register new user:
  			<form action="" method="post" name="login_form" id="login_form">
- 			u:<input name="setuser" type="text" id="setuser" value="" style="width:80px"><br>
- 			p:<input name="setpw1" type="password" id="setpw1" value="" style="width:80px"><br>
- 			p:<input name="setpw2" type="password" id="setpw2" value="" style="width:80px"><br>
+ 			u:<input name="setuser" type="text" id="setuser" value="" class="login_input">
+ 			p:<input name="setpw1" type="password" id="setpw1" value="" class="login_input">
+ 			p:<input name="setpw2" type="password" id="setpw2" value="" class="login_input">
  			<input type="button" name="Submit" value="Submit" onclick="process_login()">
  			</form>
  			</div>';
-
- 			//input type submit will reload page <input type="button" name="Submit" value="Submit">
-			
-			//error_read($this->errMsg);
-			
-			//html_set_password_field();
-			//html_end_page();
 		}else{
-			//html_head('link password');
-			//error_read($this->errMsg);
-			//html_password_field();
-			//html_end_page();
-			$page.='<div style="width:80px;margin-left:auto;margin-right:auto;text-align:center;margin-top:16px;">
+			$page.='<div class="login_form">
  			<form action="" method="post" name="login_form" id="login_form">
- 			<input name="txtUserid" type="text" id="txtUserid" value="user" style="width:80px"><br>
- 			<input name="txtUserpw" type="password" id="txtUserpw" value="password" style="width:80px"><br>
+ 			<input name="txtUserid" type="text" id="txtUserid" value="user" class="login_input">
+ 			<input name="txtUserpw" type="password" id="txtUserpw" value="password" class="login_input">
  			<input type="button" name="Submit" value="Submit" onclick="process_login()">
  			</form>
  			</div>';
