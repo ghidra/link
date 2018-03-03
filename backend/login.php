@@ -82,7 +82,9 @@ class login{
 class logout{
 	public function __construct(){
 		//session_start();
-		$_SESSION['logged_in'] = false;
+		//$_SESSION['logged_in'] = false;
+		$_SESSION = array();
+		session_destroy();
 	}
 }
 

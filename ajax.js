@@ -26,7 +26,7 @@ rad.ajax.prototype.post=function(script,data,method){
         ).join('&');
 
     var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-    xhr.open('POST', script);
+    xhr.open('POST', script,true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState>3 && xhr.status==200) { method(xhr.responseText); }
     };

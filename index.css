@@ -36,3 +36,16 @@ body
   float: left;
   margin-left:10px;
 }
+
+/*---------------------*/
+#container_new_link
+{
+  padding:10px;
+  background-color: #cea112;
+  width: 560px;
+  overflow-y: hidden;
+}
+#new_link_form{}
+#new_link{width: 560px;}
+#new_desc{width: 560px;height: 80px;}
+#new_tags{width: 480px;}

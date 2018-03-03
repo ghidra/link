@@ -8,6 +8,7 @@ function logout(){
 			document.getElementById("login").innerHTML = lamda;
 		}
 	);
+	document.getElementById("new_link").innerHTML = "";
 }
 
 function process_login(){
@@ -25,6 +26,18 @@ function process_login(){
 		//"q=login&payload="+JSON.stringify(obj),
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
+			new_link_page();
+		}
+	);
+	//new_link_page();
+}
+
+function new_link_page(){
+	a.get(
+		"link.php",
+		"q=new_link_page",
+		function(lamda){
+			document.getElementById("new_link").innerHTML = lamda;
 		}
 	);
 }
@@ -36,14 +49,9 @@ window.onload=function(){
 		"q=login",
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
-			///attach method to form
-			var form = document.getElementById('login_form');
-			if (form.attachEvent) {
-			    form.attachEvent("submit", process_login);
-			} else {
-			    form.addEventListener("submit", process_login);
-			}
+			new_link_page();
 		}
 	);
+	
 	///now lets load the links we have so far
 }
