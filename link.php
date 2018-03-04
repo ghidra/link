@@ -42,7 +42,7 @@ function attemp_login($payload){
 
 	if(!$login->logged_in)
 	{
-		return $login->errMsg . $login->get_login_page();
+		return $mysql->errMsg . $login->errMsg . $login->get_login_page();
 	}
 	else
 	{
