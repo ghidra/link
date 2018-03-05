@@ -3,6 +3,8 @@ class mysql{
 
 	var $conn;
 	var $user_table = '';
+	var $user_name = '';///incase we find it... lets just save this temporarily
+	var $user_id = -1;///same with this
 	var $errMsg = '';
 
 	public function __construct(){
@@ -40,6 +42,9 @@ class mysql{
 		$all_users = mysqli_query($this->conn,"SELECT * FROM $table ORDER BY id DESC") or die( mysqli_error($this->conn));//get info from album table
 		while($au = mysqli_fetch_array( $all_users )){
 			if($au['user']==$user) {//this user does indeed exists
+				//store some of the information for now
+				$this->user_id = $au['id'];
+				$this->user_name = $au['user'];
 				return $au['password'] ;
 			}else{
 				return 'denied';//no user	
@@ -55,6 +60,7 @@ class mysql{
 				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 				user VARCHAR(36) NOT NULL,
 				password VARCHAR(44) NOT NULL,
+				created DATETIME,
 				permission TINYINT(1) NOT NULL
 				)")or die (mysqli_error($this->conn));
 		}

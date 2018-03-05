@@ -10,4 +10,5 @@ $mysql_user_table = 'link_users';
 $mysql_link_table = 'link_links';
 $mysql_tag_table = 'link_tags';
 $mysql_link_tag_table = 'link_links_tags_relationship';
+$mysql_linked_table = 'link_linked';
 ?>

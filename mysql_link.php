@@ -10,6 +10,7 @@ class mysql_link extends mysql{
 		$this->mysql_link_table = $mysql_link_table;
 		$this->mysql_tag_table = $mysql_tag_table;
 		$this->mysql_link_tag_table = $mysql_link_tag_table;
+		$this->mysql_link_table = $mysql_link_table;
 		//this method only needs to be called right now... during dev.. otherwise this never needs to be called
 		//$this->init_tables("no");
 	}
@@ -32,6 +33,7 @@ class mysql_link extends mysql{
 				url TEXT NOT NULL,
 				description TEXT NOT NULL,
 				imagelink VARCHAR(255) NOT NULL,
+				private TINYINT(1) NOT NULL,
 				posttime DATETIME
 				)")or die ($this->errMsg = mysqli_error($this->conn));
 		}
@@ -56,6 +58,33 @@ class mysql_link extends mysql{
 				tag INT(11) NOT NULL
 				)")or die ($this->errMsg = mysqli_error($this->conn));
 		}
+	}
+	///this table is for is another user likes/links to link another user posted
+	function create_linked(){
+		//link id
+		//user who liked/linked it
+		if(!$this->table_exists($this->mysql_linked_table))
+		{
+			mysqli_query($this->conn,"CREATE TABLE $this->mysql_linked_table(
+				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				link INT(11) NOT NULL,
+				user VARCHAR(36) NOT NULL,
+				posttime DATETIME
+				)")or die ($this->errMsg = mysqli_error($this->conn));
+		}
+	}
+
+	//////////////////////////////////////////////
+	// now fill tables with data
+	//////////////////////////////////////////////
+
+	public function add_link($url,$description,$imagelink,$private){
+		$user_id = $_SESSION['user_id'];
+		$posttime = date("Y-m-d H:i:s");;
+
+		//$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, private, posttime) VALUES ('$user_id', '$url', '$description','$imagelink',$private,$posttime)";
+		$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, posttime) VALUES ('$user_id', '$url', '$description','$imagelink','$posttime')";
+		mysqli_query($this->conn,$query) or die($this->errMsg = 'Error, adding link ' . mysqli_error($this->conn)); 
 	}
 }
 ?>

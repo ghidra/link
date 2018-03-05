@@ -26,18 +26,59 @@ function process_login(){
 		//"q=login&payload="+JSON.stringify(obj),
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
-			new_link_page();
+			links_page(true);
+			//new_link_page();
 		}
 	);
 	//new_link_page();
 }
 
-function new_link_page(){
+function new_link_page()
+{
 	a.get(
 		"link.php",
 		"q=new_link_page",
 		function(lamda){
 			document.getElementById("new_link").innerHTML = lamda;
+		}
+	);
+}
+
+function process_new_link()
+{
+	var elements = document.getElementById("new_link_form").elements;
+	var obj ={};
+	obj.q = "process_new_link";
+    for(var i = 0 ; i < elements.length ; i++){
+        var item = elements.item(i);
+        obj[item.name] = item.value;
+    }
+    //alert(JSON.stringify(obj));
+    a.post(
+		"link.php",
+		obj,
+		function(lamda){
+			links_page(true);
+			alert(lamda);
+		}
+	);
+}
+
+function links_page(refresh){
+	a.get(
+		"link.php",
+		"q=links_page",
+		function(lamda){
+			var el = document.getElementById("links");
+			if(refresh)
+			{
+				el.innerHTML=lamda;
+			}
+			else
+			{
+				el.innerHTML+=lamda;
+			}
+			new_link_page();
 		}
 	);
 }
@@ -49,7 +90,8 @@ window.onload=function(){
 		"q=login",
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
-			new_link_page();
+			links_page(true);
+			//new_link_page();
 		}
 	);
 	

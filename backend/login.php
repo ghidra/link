@@ -28,7 +28,8 @@ class login{
 				$passwordhashed = sha1($post['txtUserpw']);
 				if ($passwordhashed === $check_to) {
 		        	$_SESSION["logged_in"] = true;
-		        	$_SESSION["edit_user"] = $post['txtUserid'];//this is here so I can 
+		        	$_SESSION["user"] = $post['txtUserid'];//this is here so I can
+		        	$_SESSION["user_id"] = $this->mysql->user_id;
 		        	$this->logged_in = true;
 		    	} else {
 		        	$this->errMsg = 'wrong password';
