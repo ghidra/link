@@ -80,11 +80,34 @@ class mysql_link extends mysql{
 
 	public function add_link($url,$description,$imagelink,$private){
 		$user_id = $_SESSION['user_id'];
-		$posttime = date("Y-m-d H:i:s");;
+		$posttime = date("Y-m-d H:i:s");
 
-		//$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, private, posttime) VALUES ('$user_id', '$url', '$description','$imagelink',$private,$posttime)";
+		$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, private, posttime) VALUES ('$user_id', '$url', '$description','$imagelink',$private,$posttime)";
 		$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, posttime) VALUES ('$user_id', '$url', '$description','$imagelink','$posttime')";
 		mysqli_query($this->conn,$query) or die($this->errMsg = 'Error, adding link ' . mysqli_error($this->conn)); 
+	}
+
+	//////////////////////////////////////////////
+	// now get data from tables
+	//////////////////////////////////////////////
+
+	public function get_all_public_links($begin,$limit)
+	{
+		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links '. mysqli_error());
+		$count=0;
+		$arr=array();
+		while($info = mysqli_fetch_array( $raw ))
+		{
+		// 	$arr[$count]=array('id'=>$info['id'] , 
+		// 		'user'=>$info['user'], 
+		// 		'url'=>$info['url'],
+		// 		'description'=>$info['description'] , 
+		// 		'imagelink'=>$info['imagelink'],
+		// 		'posttime'=>$info['posttime']);
+			$arr[$count] = $info;
+			$count++;
+		}
+		return $arr;
 	}
 }
 ?>

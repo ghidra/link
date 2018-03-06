@@ -34,7 +34,8 @@ class mysql{
 		if(!$this->table_exists($table)) $this->init_tables($table);//$this->create_users_table($table);//create the table if it ain't already there
 		//I need to make sure that there isn't already a user with the same name. so that it isn't input twice
 		$passwordhashed = sha1($password);
-		$query = "INSERT INTO $table (user, password, permission) VALUES ('$user', '$passwordhashed', $permission)";
+		$created = date("Y-m-d H:i:s");
+		$query = "INSERT INTO $table (user, password, created, permission) VALUES ('$user', '$passwordhashed', '$created', $permission)";
 	
 		mysqli_query($this->conn,$query) or die('Error, creating user ' . mysqli_error($this->conn));    
 	}

@@ -65,9 +65,10 @@ function process_new_link()
 }
 
 function links_page(refresh){
+	var obj ={};//empty for now
 	a.get(
 		"link.php",
-		"q=links_page",
+		"q=links_page&payload="+JSON.stringify(obj),
 		function(lamda){
 			var el = document.getElementById("links");
 			if(refresh)

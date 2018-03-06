@@ -32,25 +32,41 @@ function new_link_page()
 }
 
 ////
-function link_page()
+function link_page($link_data)
 {
+	/*
+		$link_data['id']
+		$link_data['user']
+		$link_data['url']
+		$link_data['description']
+		$link_data['imagelink']
+		$link_data['private']
+		$link_data['posttime']
+	*/
 	$s='<div id="container_link">
-		<!---image
-		description
-		link
-		date
-		-->
-		what what what
+		<a href="'.$link_data['url'].'"><div id="link_ahref">'.$link_data['url'].'</div></a>
+		<div id="link_description">'.$link_data['description'].'</div>
+		<div id="link_posttime">'.$link_data['posttime'].'</div>
 	</div>';
 
 	return $s;
 }
 
-function get_focused_links()
+function get_focused_links($focus)
 {
-	$s='';
-	//here we need to get from the table
-	echo link_page().'-----0';
+	///first stop on making the link page. This is where we determine how to look into the database
+	$mysql = new mysql_link();
+	$fetched_links = $mysql->get_all_public_links(0,10);
+
+	$s=$mysql->errMsg;
+
+	for($i=0;$i<count($fetched_links); $i++)
+	{
+		$s.=link_page($fetched_links[$i]);
+	}
+
+	echo $s;
+
 }
 
 //////////////////
@@ -110,7 +126,7 @@ if ( isset($_GET['q'])  )
 
 	if($_GET['q']=='links_page')
 	{
-		echo get_focused_links();
+		echo get_focused_links(json_decode($_GET['payload']));
 	}
 
 	if($_GET['q']=='new_link_page')
