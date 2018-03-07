@@ -60,9 +60,16 @@ function get_focused_links($focus)
 
 	$s=$mysql->errMsg;
 
-	for($i=0;$i<count($fetched_links); $i++)
+	if(count($fetched_links)<1)
 	{
-		$s.=link_page($fetched_links[$i]);
+		$s.="Unbeleivable, there are no links here.";
+	}
+	else
+	{
+		for($i=0;$i<count($fetched_links); $i++)
+		{
+			$s.=link_page($fetched_links[$i]);
+		}
 	}
 
 	echo $s;
@@ -92,11 +99,17 @@ function attemp_login($payload){
 //this method adds to the database... doesnt need to return anything, if successful, the links list is refreshed
 function process_new_link($payload){
 	$mysql = new mysql_link();
-	$login = new login($mysql,$payload);
 
-	if(!$login->logged_in)
+	///check that the link is valid
+	$mysql->add_link($payload['new_link'],$payload['new_desc'],'fake image link',0);
+	$last_id = $mysql->conn->insert_id;
+	
+	//deal with the tags
+	$tags = explode(",",$payload['new_tags']);
+	for($i=0;$i<count($tags); $i++)
 	{
-		$mysql->add_link($payload['new_link'],$payload['new_desc'],'fake image link',0);
+		$mysql->add_tag(trim($tags[$i]),$last_id);
+		//$mysql->errMsg.='---'.$tags[$i];
 	}
 
 	return $mysql->errMsg;

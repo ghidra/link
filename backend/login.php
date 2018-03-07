@@ -75,6 +75,16 @@ class login{
  			<input type="button" name="Submit" value="Submit" onclick="process_login()">
  			</form>
  			</div>';
+
+ 			$page.='<div class="login_form">
+ 			register new user:
+ 			<form action="" method="post" name="login_form" id="login_form">
+ 			u:<input name="setuser" type="text" id="setuser" value="" class="login_input">
+ 			p:<input name="setpw1" type="password" id="setpw1" value="" class="login_input">
+ 			p:<input name="setpw2" type="password" id="setpw2" value="" class="login_input">
+ 			<input type="button" name="Submit" value="Submit" onclick="process_login()">
+ 			</form>
+ 			</div>';
 		}
 		return $page;
 	}

@@ -23,7 +23,10 @@ class mysql_link extends mysql{
 		$this->create_link_tag_table();
 	}
 
-	////create database stuff
+	//////////////////////////////////////////////
+	// create database stuff
+	//////////////////////////////////////////////
+
 	function create_link_table(){
 		if(!$this->table_exists($this->mysql_link_table))
 		{
@@ -75,6 +78,25 @@ class mysql_link extends mysql{
 	}
 
 	//////////////////////////////////////////////
+	// query tables for data
+	//////////////////////////////////////////////
+
+	//This LIKE method doesnt work with tag1, and tag2, it finds the first one... i need to get exact match
+	private function tag_exists($tag)
+	{
+		$exists=0;
+		$result = mysqli_query($this->conn,"SELECT * FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find a similar tag');
+		if (mysqli_num_rows ($result)>0)$exists=1;
+		
+		return $exists;
+	}
+	private function get_tag_id($tag)
+	{
+		//$id = -1;
+		return mysqli_query($this->conn,"SELECT id FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find id of tag');
+	}
+
+	//////////////////////////////////////////////
 	// now fill tables with data
 	//////////////////////////////////////////////
 
@@ -82,9 +104,31 @@ class mysql_link extends mysql{
 		$user_id = $_SESSION['user_id'];
 		$posttime = date("Y-m-d H:i:s");
 
-		$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, private, posttime) VALUES ('$user_id', '$url', '$description','$imagelink',$private,$posttime)";
+		//$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, private, posttime) VALUES ('$user_id', '$url', '$description','$imagelink',$private,$posttime)";
 		$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, posttime) VALUES ('$user_id', '$url', '$description','$imagelink','$posttime')";
 		mysqli_query($this->conn,$query) or die($this->errMsg = 'Error, adding link ' . mysqli_error($this->conn)); 
+	}
+
+	public function add_tag($tag,$link_id){
+		$user_id = $_SESSION['user_id'];
+		$posttime = date("Y-m-d H:i:s");
+		$tag_id = -1;
+
+		if(!$this->tag_exists($tag))
+		{
+			$query = "INSERT INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
+			mysqli_query($this->conn,$query) or die($this->errMsg .= 'Error, adding tag ' . mysqli_error($this->conn)); 
+			$tag_id = $this->conn->insert_id;
+		}
+		else
+		{
+			///the tag already exists.. i need to get the tag id value
+			$tag_id = $this->get_tag_id($tag);
+			//$this->get_tag_id($tag);
+		}
+
+		$query = "INSERT INTO $this->mysql_link_tag_table (link, tag) VALUES ($link_id,$tag_id)";
+		mysqli_query($this->conn,$query) or die($this->errMsg .= 'Error, adding link tag relationship ' . mysqli_error($this->conn)); 	
 	}
 
 	//////////////////////////////////////////////

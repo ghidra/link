@@ -59,7 +59,7 @@ function process_new_link()
 		obj,
 		function(lamda){
 			links_page(true);
-			alert(lamda);
+			alert("return from process new link: "+lamda);
 		}
 	);
 }
