@@ -21,9 +21,9 @@ function new_link_page()
 {
 	$s='<div id="container_new_link">
 		<form name="new_link_form" id="new_link_form">
-			<input name="new_link" type="text" id="new_link" value="http://" class="new_link_input">
-			<input name="new_desc" type="text" id="new_desc" value="description" class="new_desc_input">
-			<input name="new_tags" type="text" id="new_tags" value="tag1, tag2" class="new_tags_input">
+			<input name="new_link" type="text" id="new_link" placeholder="http://" class="new_link_input">
+			<input name="new_desc" type="text" id="new_desc" placeholder="description" class="new_desc_input">
+			<input name="new_tags" type="text" id="new_tags" placeholder="tag1, tag2" class="new_tags_input">
 			<input type="button" name="Submit" value="Submit" onclick="process_new_link()">
 		</form>
 	</div>';
@@ -97,10 +97,70 @@ function attemp_login($payload){
 /////////////////////
 
 //this method adds to the database... doesnt need to return anything, if successful, the links list is refreshed
+$baseUrl = '/';
+
+
+$regularExpression  = "((https?|ftp)\:\/\/)?"; // SCHEME Check
+$regularExpression .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; // User and Pass Check
+$regularExpression .= "([a-z0-9-.]*)\.([a-z]{2,3})"; // Host or IP Check
+$regularExpression .= "(\:[0-9]{2,5})?"; // Port Check
+$regularExpression .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; // Path Check
+$regularExpression .= "(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?"; // GET Query String Check
+$regularExpression .= "(#[a-z_.-][a-z0-9+\$_.-]*)?"; // Anchor Check
+
 function process_new_link($payload){
+
+	$localStatus = '';
 	$mysql = new mysql_link();
 
+	//////////////////////////////
+	/////CHECK URL
+	//https://stackoverflow.com/a/44029246
+	$uurl = $payload['new_link'];
+	$final_url='';
+
+	if(preg_match("/^$regularExpression$/i", $uurl)) 
+	{ 
+	    if(preg_match("@^http|https://@i",$uurl)) 
+	    {
+	        $final_url = preg_replace("@(http://)+@i",'http://',$uurl);// return "*** - ***Match : ".$final_url;
+	    }
+	    else 
+	    { 
+	          $final_url = 'http://'.$uurl;// return "*** / ***Match : ".$final_url;
+	    }
+	}
+	else 
+	{
+	     if (substr($uurl, 0, 1) === '/') 
+	     { 
+	         $final_url = $baseUrl.$uurl; // return "*** / ***Not Match :".$final_url."<br>".$baseUrl.$posted_url;
+	     }
+	     else 
+	     { 
+	         //$final_url = $baseUrl."/".$final_url; 
+	     	$final_url='';// return "*** - ***Not Match :".$posted_url."<br>".$baseUrl."/".$posted_url;
+	     }
+	}
+	//$localStatus = $final_url;
+	if($final_url!='')
+	{
+		echo $final_url.'<br>';
+	}
+	//////////////////////////////
+
+	//https://www.w3schools.com/php/filter_validate_url.asp
+	//http://www.php.net/parse_url
 	///check that the link is valid
+	// $url = filter_var($payload['new_link'], FILTER_SANITIZE_URL);
+	// if ( filter_var( $url , FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED ) === FALSE ) {
+	//    	$localStatus = "$url is not a valid URL";
+	    
+	// } else {
+	//     $localStatus = "$url is a valid URL";
+	// }
+
+	///add it to the database
 	$mysql->add_link($payload['new_link'],$payload['new_desc'],'fake image link',0);
 	$last_id = $mysql->conn->insert_id;
 	
@@ -112,7 +172,7 @@ function process_new_link($payload){
 		//$mysql->errMsg.='---'.$tags[$i];
 	}
 
-	return $mysql->errMsg;
+	return $localStatus . $mysql->errMsg;
 }
 
 
