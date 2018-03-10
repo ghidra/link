@@ -20,7 +20,7 @@ class mysql_link extends mysql{
 		$this->create_users_table($users_table);
 		$this->create_link_table();
 		$this->create_tag_table();
-		$this->create_link_tag_table();
+		$this->create_tag_rel_table();
 	}
 
 	//////////////////////////////////////////////
@@ -31,7 +31,7 @@ class mysql_link extends mysql{
 		if(!$this->table_exists($this->mysql_link_table))
 		{
 			mysqli_query($this->conn,"CREATE TABLE $this->mysql_link_table(
-				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				link_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 				user INT(11) NOT NULL,
 				url TEXT NOT NULL,
 				description TEXT NOT NULL,
@@ -45,55 +45,57 @@ class mysql_link extends mysql{
 		if(!$this->table_exists($this->mysql_tag_table))
 		{
 			mysqli_query($this->conn,"CREATE TABLE $this->mysql_tag_table(
-				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				tag VARCHAR(36) NOT NULL,
+				tag_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				tag VARCHAR(36) NOT NULL UNIQUE KEY,
 				user VARCHAR(36) NOT NULL,
 				posttime DATETIME
 				)")or die ($this->errMsg = mysqli_error($this->conn));
 		}
 	}
-	function create_link_tag_table(){
+	function create_tag_rel_table(){
 		if(!$this->table_exists($this->mysql_link_tag_table))
 		{
 			mysqli_query($this->conn,"CREATE TABLE $this->mysql_link_tag_table(
-				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				link INT(11) NOT NULL,
-				tag INT(11) NOT NULL
+				rel_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				link_id INT(11) NOT NULL,
+				tag_id INT(11) NOT NULL,
+				FOREIGN KEY (tag_id) REFERENCES $this->mysql_tag_table(tag_id) ON DELETE CASCADE,
+				FOREIGN KEY (link_id) REFERENCES $this->mysql_link_table(link_id) ON DELETE CASCADE
 				)")or die ($this->errMsg = mysqli_error($this->conn));
 		}
 	}
 	///this table is for is another user likes/links to link another user posted
-	function create_linked(){
-		//link id
-		//user who liked/linked it
-		if(!$this->table_exists($this->mysql_linked_table))
-		{
-			mysqli_query($this->conn,"CREATE TABLE $this->mysql_linked_table(
-				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				link INT(11) NOT NULL,
-				user VARCHAR(36) NOT NULL,
-				posttime DATETIME
-				)")or die ($this->errMsg = mysqli_error($this->conn));
-		}
-	}
+	// function create_linked(){
+	// 	//link id
+	// 	//user who liked/linked it
+	// 	if(!$this->table_exists($this->mysql_linked_table))
+	// 	{
+	// 		mysqli_query($this->conn,"CREATE TABLE $this->mysql_linked_table(
+	// 			linked_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	// 			link_id INT(11) NOT NULL,
+	// 			user VARCHAR(36) NOT NULL,
+	// 			posttime DATETIME
+	// 			)")or die ($this->errMsg = mysqli_error($this->conn));
+	// 	}
+	// }
 
 	//////////////////////////////////////////////
 	// query tables for data
 	//////////////////////////////////////////////
 
 	//This LIKE method doesnt work with tag1, and tag2, it finds the first one... i need to get exact match
-	private function tag_exists($tag)
-	{
-		$exists=0;
-		$result = mysqli_query($this->conn,"SELECT * FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find a similar tag');
-		if (mysqli_num_rows ($result)>0)$exists=1;
+	// private function tag_exists($tag)
+	// {
+	// 	///I might not need this... I can just ignore
+	// 	$exists=0;
+	// 	$result = mysqli_query($this->conn,"SELECT * FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find a similar tag');
+	// 	if (mysqli_num_rows ($result)>0)$exists=1;
 		
-		return $exists;
-	}
+	// 	return $exists;
+	// }
 	private function get_tag_id($tag)
 	{
-		//$id = -1;
-		return mysqli_query($this->conn,"SELECT id FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find id of tag');
+		return mysqli_query($this->conn,"SELECT tag_id FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find id of tag');
 	}
 
 	//////////////////////////////////////////////
@@ -110,24 +112,26 @@ class mysql_link extends mysql{
 	}
 
 	public function add_tag($tag,$link_id){
+		//https://www.phpro.org/tutorials/Tagging-With-PHP-And-MySQL.html
 		$user_id = $_SESSION['user_id'];
 		$posttime = date("Y-m-d H:i:s");
 		$tag_id = -1;
 
-		if(!$this->tag_exists($tag))
-		{
-			$query = "INSERT INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
+		//if(!$this->tag_exists($tag))
+		//{
+			//$query = "INSERT INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
+			$query = "INSERT IGNORE INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
 			mysqli_query($this->conn,$query) or die($this->errMsg .= 'Error, adding tag ' . mysqli_error($this->conn)); 
 			$tag_id = $this->conn->insert_id;
-		}
-		else
-		{
+		//}
+		//else
+		//{
 			///the tag already exists.. i need to get the tag id value
 			$tag_id = $this->get_tag_id($tag);
 			//$this->get_tag_id($tag);
-		}
+		//}
 
-		$query = "INSERT INTO $this->mysql_link_tag_table (link, tag) VALUES ($link_id,$tag_id)";
+		$query = "INSERT INTO $this->mysql_link_tag_table (link_id, tag_id) VALUES ($link_id,$tag_id)";
 		mysqli_query($this->conn,$query) or die($this->errMsg .= 'Error, adding link tag relationship ' . mysqli_error($this->conn)); 	
 	}
 
@@ -137,7 +141,7 @@ class mysql_link extends mysql{
 
 	public function get_all_public_links($begin,$limit)
 	{
-		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links '. mysqli_error());
+		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links, or, there are NO LINKS to get: '. mysqli_error());
 		$count=0;
 		$arr=array();
 		while($info = mysqli_fetch_array( $raw ))
@@ -148,6 +152,19 @@ class mysql_link extends mysql{
 		// 		'description'=>$info['description'] , 
 		// 		'imagelink'=>$info['imagelink'],
 		// 		'posttime'=>$info['posttime']);
+			$arr[$count] = $info;
+			$count++;
+		}
+		return $arr;
+	}
+
+	public function get_tags()
+	{
+		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_tag_table ORDER BY tag_id DESC ") or die($this->errMsg = 'Error, getting all public tags '. mysqli_error());
+		$count=0;
+		$arr=array();
+		while($info = mysqli_fetch_array( $raw ))
+		{
 			$arr[$count] = $info;
 			$count++;
 		}

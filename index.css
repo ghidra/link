@@ -55,11 +55,20 @@ body
 #new_tags{width: 480px;}
 
 /*---------------------*/
-#container_link
+.container_link
 {
   padding:10px;
   background-color: #40150a;
   width: 560px;
+  overflow-y: hidden;
+  margin-top: 10px;
+  border-radius: 3px;
+}
+.container_tag
+{
+  padding:10px;
+  background-color: #f4e0ea;
+  width: 150px;
   overflow-y: hidden;
   margin-top: 10px;
   border-radius: 3px;

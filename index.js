@@ -27,10 +27,8 @@ function process_login(){
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
 			links_page(true);
-			//new_link_page();
 		}
 	);
-	//new_link_page();
 }
 
 function new_link_page()
@@ -79,6 +77,17 @@ function links_page(refresh){
 			{
 				el.innerHTML+=lamda;
 			}
+			//new_link_page();
+			tags_page();
+		}
+	);
+}
+function tags_page(){
+	a.get(
+		"link.php",
+		"q=tags_page",
+		function(lamda){
+			document.getElementById("tags").innerHTML = lamda;
 			new_link_page();
 		}
 	);
@@ -92,7 +101,6 @@ window.onload=function(){
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
 			links_page(true);
-			//new_link_page();
 		}
 	);
 	

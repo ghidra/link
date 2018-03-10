@@ -32,7 +32,7 @@ function new_link_page()
 }
 
 ////
-function link_page($link_data)
+function link_html($link_data)
 {
 	/*
 		$link_data['id']
@@ -43,11 +43,23 @@ function link_page($link_data)
 		$link_data['private']
 		$link_data['posttime']
 	*/
-	$s='<div id="container_link">
+	$s='<div class="container_link">
 		<a href="'.$link_data['url'].'"><div id="link_ahref">'.$link_data['url'].'</div></a>
 		<div id="link_description">'.$link_data['description'].'</div>
 		<div id="link_posttime">'.$link_data['posttime'].'</div>
 	</div>';
+
+	return $s;
+}
+function tag_html($tag_data)
+{
+	/*
+		$tag_data['tag_id']
+		$tag_data['tag']
+		$tag_data['user']
+		$tag_data['posttime']
+	*/
+	$s='<div class="container_tag">'.$tag_data['tag'].'</div>';
 
 	return $s;
 }
@@ -68,12 +80,33 @@ function get_focused_links($focus)
 	{
 		for($i=0;$i<count($fetched_links); $i++)
 		{
-			$s.=link_page($fetched_links[$i]);
+			$s.=link_html($fetched_links[$i]);
 		}
 	}
 
 	echo $s;
 
+}
+
+function get_tags()
+{
+	$mysql = new mysql_link();
+	$fetched_tags = $mysql->get_tags();
+	$s=$mysql->errMsg;
+
+	if(count($fetched_tags)<1)
+	{
+		$s.="Unbeleivable, there are no tags here.";
+	}
+	else
+	{
+		for($i=0;$i<count($fetched_tags); $i++)
+		{
+			$s.=tag_html($fetched_tags[$i]);
+		}
+	}
+
+	echo $s;
 }
 
 //////////////////
@@ -97,16 +130,6 @@ function attemp_login($payload){
 /////////////////////
 
 //this method adds to the database... doesnt need to return anything, if successful, the links list is refreshed
-$baseUrl = '/';
-
-
-$regularExpression  = "((https?|ftp)\:\/\/)?"; // SCHEME Check
-$regularExpression .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; // User and Pass Check
-$regularExpression .= "([a-z0-9-.]*)\.([a-z]{2,3})"; // Host or IP Check
-$regularExpression .= "(\:[0-9]{2,5})?"; // Port Check
-$regularExpression .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; // Path Check
-$regularExpression .= "(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?"; // GET Query String Check
-$regularExpression .= "(#[a-z_.-][a-z0-9+\$_.-]*)?"; // Anchor Check
 
 function process_new_link($payload){
 
@@ -118,6 +141,15 @@ function process_new_link($payload){
 	//https://stackoverflow.com/a/44029246
 	$uurl = $payload['new_link'];
 	$final_url='';
+
+	$baseUrl = '/';
+	$regularExpression  = "((https?|ftp)\:\/\/)?"; // SCHEME Check
+	$regularExpression .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; // User and Pass Check
+	$regularExpression .= "([a-z0-9-.]*)\.([a-z]{2,3})"; // Host or IP Check
+	$regularExpression .= "(\:[0-9]{2,5})?"; // Port Check
+	$regularExpression .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; // Path Check
+	$regularExpression .= "(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?"; // GET Query String Check
+	$regularExpression .= "(#[a-z_.-][a-z0-9+\$_.-]*)?"; // Anchor Check
 
 	if(preg_match("/^$regularExpression$/i", $uurl)) 
 	{ 
@@ -142,34 +174,24 @@ function process_new_link($payload){
 	     	$final_url='';// return "*** - ***Not Match :".$posted_url."<br>".$baseUrl."/".$posted_url;
 	     }
 	}
-	//$localStatus = $final_url;
-	if($final_url!='')
-	{
-		echo $final_url.'<br>';
-	}
-	//////////////////////////////
-
-	//https://www.w3schools.com/php/filter_validate_url.asp
-	//http://www.php.net/parse_url
-	///check that the link is valid
-	// $url = filter_var($payload['new_link'], FILTER_SANITIZE_URL);
-	// if ( filter_var( $url , FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED ) === FALSE ) {
-	//    	$localStatus = "$url is not a valid URL";
-	    
-	// } else {
-	//     $localStatus = "$url is a valid URL";
-	// }
 
 	///add it to the database
-	$mysql->add_link($payload['new_link'],$payload['new_desc'],'fake image link',0);
-	$last_id = $mysql->conn->insert_id;
-	
-	//deal with the tags
-	$tags = explode(",",$payload['new_tags']);
-	for($i=0;$i<count($tags); $i++)
+	if($final_url!='')
 	{
-		$mysql->add_tag(trim($tags[$i]),$last_id);
-		//$mysql->errMsg.='---'.$tags[$i];
+		$mysql->add_link($payload['new_link'],$payload['new_desc'],'fake image link',0);
+		$last_id = $mysql->conn->insert_id;
+		
+		//deal with the tags
+		$tags = explode(",",$payload['new_tags']);
+		for($i=0;$i<count($tags); $i++)
+		{
+			$mysql->add_tag(trim($tags[$i]),$last_id);
+			//$mysql->errMsg.='---'.$tags[$i];
+		}
+	}
+	else
+	{
+		$localStatus = 'URL: '.$final_url.' is invalid. Was NOT added. ';
 	}
 
 	return $localStatus . $mysql->errMsg;
@@ -200,6 +222,10 @@ if ( isset($_GET['q'])  )
 	if($_GET['q']=='links_page')
 	{
 		echo get_focused_links(json_decode($_GET['payload']));
+	}
+	if($_GET['q']=='tags_page')
+	{
+		echo get_tags();
 	}
 
 	if($_GET['q']=='new_link_page')
