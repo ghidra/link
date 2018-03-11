@@ -44,7 +44,7 @@ function link_html($link_data)
 		$link_data['posttime']
 	*/
 	$s='<div class="container_link">
-		<a href="'.$link_data['url'].'"><div id="link_ahref">'.$link_data['url'].'</div></a>
+		<a href="'.$link_data['url'].'" target="_blank"><div id="link_ahref">'.$link_data['url'].'</div></a>
 		<div id="link_description">'.$link_data['description'].'</div>
 		<div id="link_posttime">'.$link_data['posttime'].'</div>
 	</div>';
@@ -174,11 +174,11 @@ function process_new_link($payload){
 	     	$final_url='';// return "*** - ***Not Match :".$posted_url."<br>".$baseUrl."/".$posted_url;
 	     }
 	}
-
+	//return parse_url($url, PHP_URL_SCHEME) === null ?$scheme . $url : $url;
 	///add it to the database
 	if($final_url!='')
 	{
-		$mysql->add_link($payload['new_link'],$payload['new_desc'],'fake image link',0);
+		$mysql->add_link($final_url,$payload['new_desc'],'fake image link',0);
 		$last_id = $mysql->conn->insert_id;
 		
 		//deal with the tags

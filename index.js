@@ -11,8 +11,8 @@ function logout(){
 	document.getElementById("new_link").innerHTML = "";
 }
 
-function process_login(){
-	var elements = document.getElementById("login_form").elements;
+function process_login(form_name){
+	var elements = document.getElementById(form_name).elements;
 	var obj ={};
 	obj.q = "login";
     for(var i = 0 ; i < elements.length ; i++){

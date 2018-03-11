@@ -32,12 +32,13 @@ class mysql_link extends mysql{
 		{
 			mysqli_query($this->conn,"CREATE TABLE $this->mysql_link_table(
 				link_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				user INT(11) NOT NULL,
+				user_id INT(11) NOT NULL,
 				url TEXT NOT NULL,
 				description TEXT NOT NULL,
 				imagelink VARCHAR(255) NOT NULL,
 				private TINYINT(1) NOT NULL,
-				posttime DATETIME
+				posttime DATETIME,
+				FOREIGN KEY (user_id) REFERENCES $this->user_table(user_id) ON DELETE CASCADE
 				)")or die ($this->errMsg = mysqli_error($this->conn));
 		}
 	}
@@ -47,7 +48,7 @@ class mysql_link extends mysql{
 			mysqli_query($this->conn,"CREATE TABLE $this->mysql_tag_table(
 				tag_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 				tag VARCHAR(36) NOT NULL UNIQUE KEY,
-				user VARCHAR(36) NOT NULL,
+				user_id INT(11) NOT NULL,
 				posttime DATETIME
 				)")or die ($this->errMsg = mysqli_error($this->conn));
 		}
@@ -107,7 +108,7 @@ class mysql_link extends mysql{
 		$posttime = date("Y-m-d H:i:s");
 
 		//$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, private, posttime) VALUES ('$user_id', '$url', '$description','$imagelink',$private,$posttime)";
-		$query = "INSERT INTO $this->mysql_link_table (user, url, description, imagelink, posttime) VALUES ('$user_id', '$url', '$description','$imagelink','$posttime')";
+		$query = "INSERT INTO $this->mysql_link_table (user_id, url, description, imagelink, posttime) VALUES ('$user_id', '$url', '$description','$imagelink','$posttime')";
 		mysqli_query($this->conn,$query) or die($this->errMsg = 'Error, adding link ' . mysqli_error($this->conn)); 
 	}
 
@@ -120,7 +121,7 @@ class mysql_link extends mysql{
 		//if(!$this->tag_exists($tag))
 		//{
 			//$query = "INSERT INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
-			$query = "INSERT IGNORE INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
+			$query = "INSERT IGNORE INTO $this->mysql_tag_table (tag, user_id, posttime) VALUES ('$tag','$user_id','$posttime')";
 			mysqli_query($this->conn,$query) or die($this->errMsg .= 'Error, adding tag ' . mysqli_error($this->conn)); 
 			$tag_id = $this->conn->insert_id;
 		//}

@@ -40,11 +40,11 @@ class mysql{
 		mysqli_query($this->conn,$query) or die('Error, creating user ' . mysqli_error($this->conn));    
 	}
 	public function get_user_password($table,$user){
-		$all_users = mysqli_query($this->conn,"SELECT * FROM $table ORDER BY id DESC") or die( mysqli_error($this->conn));//get info from album table
+		$all_users = mysqli_query($this->conn,"SELECT * FROM $table ORDER BY user_id DESC") or die( mysqli_error($this->conn));//get info from album table
 		while($au = mysqli_fetch_array( $all_users )){
 			if($au['user']==$user) {//this user does indeed exists
 				//store some of the information for now
-				$this->user_id = $au['id'];
+				$this->user_id = $au['user_id'];
 				$this->user_name = $au['user'];
 				return $au['password'] ;
 			}else{
@@ -58,8 +58,8 @@ class mysql{
 		if(!$this->table_exists($table))
 		{
 			mysqli_query($this->conn,"CREATE TABLE $table(
-				id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				user VARCHAR(36) NOT NULL,
+				user_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				user VARCHAR(36) NOT NULL UNIQUE KEY,
 				password VARCHAR(44) NOT NULL,
 				created DATETIME,
 				permission TINYINT(1) NOT NULL

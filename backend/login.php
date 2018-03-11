@@ -60,29 +60,29 @@ class login{
 			///make 3 fields, one user name, 2 passwords
 			$page.='<div class="login_form">
  			register new user:
- 			<form action="" method="post" name="login_form" id="login_form">
- 			u:<input name="setuser" type="text" id="setuser" value="" class="login_input">
- 			p:<input name="setpw1" type="password" id="setpw1" value="" class="login_input">
- 			p:<input name="setpw2" type="password" id="setpw2" value="" class="login_input">
- 			<input type="button" name="Submit" value="Submit" onclick="process_login()">
+ 			<form action="" method="post" name="login_form_new_user" id="login_form_new_user">
+ 			<input name="setuser" type="text" id="setuser" value="" placeholder="user name" class="login_input">
+ 			<input name="setpw1" type="password" id="setpw1" value="" placeholder="password" class="login_input">
+ 			<input name="setpw2" type="password" id="setpw2" value="" placeholder="confirm password" class="login_input">
+ 			<input type="button" name="Submit" value="Submit" onclick="process_login(\'login_form_new_user\')">
  			</form>
  			</div>';
 		}else{
 			$page.='<div class="login_form">
  			<form action="" method="post" name="login_form" id="login_form">
- 			<input name="txtUserid" type="text" id="txtUserid" value="user" class="login_input">
- 			<input name="txtUserpw" type="password" id="txtUserpw" value="password" class="login_input">
- 			<input type="button" name="Submit" value="Submit" onclick="process_login()">
+ 			<input name="txtUserid" type="text" id="txtUserid" value="" placeholder="user name" class="login_input">
+ 			<input name="txtUserpw" type="password" id="txtUserpw" value="" placeholder="password" class="login_input">
+ 			<input type="button" name="Submit" value="Submit" onclick="process_login(\'login_form\')">
  			</form>
  			</div>';
 
  			$page.='<div class="login_form">
  			register new user:
- 			<form action="" method="post" name="login_form" id="login_form">
- 			u:<input name="setuser" type="text" id="setuser" value="" class="login_input">
- 			p:<input name="setpw1" type="password" id="setpw1" value="" class="login_input">
- 			p:<input name="setpw2" type="password" id="setpw2" value="" class="login_input">
- 			<input type="button" name="Submit" value="Submit" onclick="process_login()">
+ 			<form action="" method="post" name="login_form_new_user" id="login_form_new_user">
+ 			<input name="setuser" type="text" id="setuser" value="" placeholder="user name" class="login_input">
+ 			<input name="setpw1" type="password" id="setpw1" value="" placeholder="password" class="login_input">
+ 			<input name="setpw2" type="password" id="setpw2" value="" placeholder="confirm password" class="login_input">
+ 			<input type="button" name="Submit" value="Submit" onclick="process_login(\'login_form_new_user\')">
  			</form>
  			</div>';
 		}
