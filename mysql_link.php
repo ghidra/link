@@ -36,7 +36,6 @@ class mysql_link extends mysql{
 				url TEXT NOT NULL,
 				description TEXT NOT NULL,
 				imagelink VARCHAR(255) NOT NULL,
-				private TINYINT(1) NOT NULL,
 				posttime DATETIME,
 				FOREIGN KEY (user_id) REFERENCES $this->user_table(user_id) ON DELETE CASCADE
 				)")or die ($this->errMsg = mysqli_error($this->conn));
@@ -103,7 +102,7 @@ class mysql_link extends mysql{
 	// now fill tables with data
 	//////////////////////////////////////////////
 
-	public function add_link($url,$description,$imagelink,$private){
+	public function add_link($url,$description,$imagelink){
 		$user_id = $_SESSION['user_id'];
 		$posttime = date("Y-m-d H:i:s");
 
@@ -153,6 +152,20 @@ class mysql_link extends mysql{
 		// 		'description'=>$info['description'] , 
 		// 		'imagelink'=>$info['imagelink'],
 		// 		'posttime'=>$info['posttime']);
+			$arr[$count] = $info;
+			$count++;
+		}
+		return $arr;
+	}
+
+	public function get_all_personal_links($begin,$limit)
+	{
+		$user_id = $_SESSION['user_id'];
+		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table WHERE user_id LIKE $user_id ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		$count=0;
+		$arr=array();
+		while($info = mysqli_fetch_array( $raw ))
+		{
 			$arr[$count] = $info;
 			$count++;
 		}

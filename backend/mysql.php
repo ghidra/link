@@ -47,10 +47,9 @@ class mysql{
 				$this->user_id = $au['user_id'];
 				$this->user_name = $au['user'];
 				return $au['password'] ;
-			}else{
-				return 'denied';//no user	
 			}
 		}
+		return 'denied';//no user	
 	}
 
 	////create database stuff

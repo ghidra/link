@@ -22,7 +22,7 @@ function new_link_page()
 	$s='<div id="container_new_link">
 		<form name="new_link_form" id="new_link_form">
 			<input name="new_link" type="text" id="new_link" placeholder="http://" class="new_link_input">
-			<input name="new_desc" type="text" id="new_desc" placeholder="description" class="new_desc_input">
+			<textarea name="new_desc" type="text" id="new_desc" placeholder="description" class="new_desc_input"></textarea>
 			<input name="new_tags" type="text" id="new_tags" placeholder="tag1, tag2" class="new_tags_input">
 			<input type="button" name="Submit" value="Submit" onclick="process_new_link()">
 		</form>
@@ -44,7 +44,7 @@ function link_html($link_data)
 		$link_data['posttime']
 	*/
 	$s='<div class="container_link">
-		<a href="'.$link_data['url'].'" target="_blank"><div id="link_ahref">'.$link_data['url'].'</div></a>
+		<a class="link_ahref" href="'.$link_data['url'].'" target="_blank"><div class="link_ahref_bg">'.$link_data['url'].'</div></a>
 		<div id="link_description">'.$link_data['description'].'</div>
 		<div id="link_posttime">'.$link_data['posttime'].'</div>
 	</div>';
@@ -64,11 +64,19 @@ function tag_html($tag_data)
 	return $s;
 }
 
-function get_focused_links($focus)
+function get_focused_links($focus=true)
 {
 	///first stop on making the link page. This is where we determine how to look into the database
 	$mysql = new mysql_link();
-	$fetched_links = $mysql->get_all_public_links(0,10);
+	$fetched_links;
+	if($focus)
+	{
+		$fetched_links = $mysql->get_all_personal_links(0,10);
+	}
+	else
+	{
+		$fetched_links = $mysql->get_all_public_links(0,10);
+	}
 
 	$s=$mysql->errMsg;
 
@@ -171,6 +179,7 @@ function process_new_link($payload){
 	     else 
 	     { 
 	         //$final_url = $baseUrl."/".$final_url; 
+	     	$localStatus = $final_url;///copy the fineal_url string across so I can see it
 	     	$final_url='';// return "*** - ***Not Match :".$posted_url."<br>".$baseUrl."/".$posted_url;
 	     }
 	}
@@ -178,7 +187,7 @@ function process_new_link($payload){
 	///add it to the database
 	if($final_url!='')
 	{
-		$mysql->add_link($final_url,$payload['new_desc'],'fake image link',0);
+		$mysql->add_link($final_url,$payload['new_desc'],'fake image link');
 		$last_id = $mysql->conn->insert_id;
 		
 		//deal with the tags
@@ -191,7 +200,7 @@ function process_new_link($payload){
 	}
 	else
 	{
-		$localStatus = 'URL: '.$final_url.' is invalid. Was NOT added. ';
+		$localStatus = 'URL: '.$localStatus.' is invalid. Was NOT added. ';
 	}
 
 	return $localStatus . $mysql->errMsg;
@@ -221,7 +230,16 @@ if ( isset($_GET['q'])  )
 
 	if($_GET['q']=='links_page')
 	{
-		echo get_focused_links(json_decode($_GET['payload']));
+		//test here to show personal, or all
+		if(isset($_SESSION['logged_in']))
+		{
+			echo get_focused_links();
+		}
+		else
+		{
+			//json_decode($_GET['payload']
+			echo get_focused_links(false);
+		}
 	}
 	if($_GET['q']=='tags_page')
 	{

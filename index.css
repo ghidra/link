@@ -1,7 +1,37 @@
+:root {
+  /*http://www.color-hex.com/color-palette/56839*/
+  /*--dark-color: #180c02;
+  --darkish-color: #40150a;
+  --mid-color: #74091a;
+  --light-color: #a11f42;
+  --bright-color: #f4e0ea;*/
+  /*http://www.color-hex.com/color-palette/57266*/
+  /*--dark-color: #8c1eff;
+  --darkish-color: #f222ff;
+  --mid-color: #ff2975;
+  --light-color: #ff901f;
+  --bright-color: #ffd319;*/
+  /*http://www.color-hex.com/color-palette/57077*/
+  /*--dark-color: #094b4b;
+  --darkish-color: #008284;
+  --mid-color: #ac8885;
+  --light-color: #0dafae;
+  --bright-color: #e8c4be;*/
+  /*http://www.color-hex.com/color-palette/57174
+  http://www.color-hex.com/color-palette/57257*/
+  --dark-color: #403b2d;
+  --darkish-color: #bbbbbb;
+  --mid-color: #cccccc;
+  --light-color: #dddddd;
+  --bright-color: #eeeeee;
+  --accent-color: #d97e78;
+}
+
 body
 {
   padding: 30px;
-  background-color: #180c02;
+  background-color: var(--light-color);
+  font-family: "Arial", Arial, sans-serif;
 }
 
 #container
@@ -10,7 +40,7 @@ body
   padding:10px;
   width: 800px;
   /*height: 100px;*/
-  background-color: #40150a;
+  background-color: var(--bright-color);
   border-radius: 3px;
   overflow-y: hidden;
 }
@@ -22,7 +52,7 @@ body
   padding:0 10 10 10px;
   width: 580px;
   /*height: 100px;*/
-  background-color: #74091a;
+  background-color: var(--bright-color);
   border-radius: 3px;
   float: left
 }
@@ -31,7 +61,7 @@ body
 {
   padding:10px;
   width: 170px;
-  background-color: #bbb;
+  background-color: var(--bright-color);
   border-radius: 3px;
   float: left;
   margin-left:10px;
@@ -42,7 +72,7 @@ body
 #container_new_link
 {
   padding:10px;
-  background-color: #a11f42;
+  background-color: var(--accent-color);
   width: 560px;
   overflow-y: hidden;
   margin-bottom: 10px;
@@ -58,7 +88,8 @@ body
 .container_link
 {
   padding:10px;
-  background-color: #40150a;
+  color:var(--dark-color);
+  /*background-color: var(--light-color);*/
   width: 560px;
   overflow-y: hidden;
   margin-top: 10px;
@@ -67,32 +98,38 @@ body
 .container_tag
 {
   padding:10px;
-  background-color: #f4e0ea;
+  background-color: var(--light-color);
   width: 150px;
   overflow-y: hidden;
   margin-top: 10px;
   border-radius: 3px;
 }
-#link_ahref{
+.link_ahref_bg{
   padding:10px;
   width: 540px;
-  background-color: #f4e0ea;
+  /*background-color: var(--bright-color);*/
   border-radius: 3px;
+}
+.link_ahref{
+  color:var(--dark-color);
+  text-decoration: none;
+  font-size: x-large;
+  font-weight: bold;
 }
 #link_description{
   padding:10px;
   width: 540px;
-  background-color: #74091a;
+  /*background-color: var(--darkish-color);*/
   margin-top: 2px;
   border-radius: 3px;
 }
 #link_posttime{
   padding:4 10 4 10px;
   width: 540px;
-  background-color: #74091a;
+  /*background-color: var(--darkish-color);*/
   margin-top: 2px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: x-small;
 }
 
 /*-----------*/

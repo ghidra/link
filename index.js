@@ -47,19 +47,35 @@ function process_new_link()
 	var elements = document.getElementById("new_link_form").elements;
 	var obj ={};
 	obj.q = "process_new_link";
+	var simpleValidate = true;
     for(var i = 0 ; i < elements.length ; i++){
         var item = elements.item(i);
         obj[item.name] = item.value;
+        if(item.name === "new_link" && item.value === ""){
+        	simpleValidate = false;
+        }
     }
     //alert(JSON.stringify(obj));
-    a.post(
-		"link.php",
-		obj,
-		function(lamda){
-			links_page(true);
-			alert("return from process new link: "+lamda);
-		}
-	);
+    if(simpleValidate)
+    {
+    	//alert('there was an attempt');
+	    a.post(
+			"link.php",
+			obj,
+			function(lamda){
+				//alert(lamda);
+				links_page(true);
+				if(lamda.length>0){
+					alert(lamda);
+				}
+				//alert("return from process new link: "+lamda);
+			}
+		);
+	}
+	else
+	{
+		alert("updated Link field is empty: ");
+	}
 }
 
 function links_page(refresh){
