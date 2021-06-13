@@ -141,9 +141,17 @@ class mysql_link extends mysql{
 
 	public function get_all_public_links($begin,$limit)
 	{
+		$obj = new stdClass();
+		$obj->start_offset=$begin;
+		$obj->end_offset=$begin+$limit;
+		
+		///i just want a count here:
+		$allRaw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		$obj->total_count = mysqli_num_rows($allRaw);
+
 		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links, or, there are NO LINKS to get: '. mysqli_error());
 		$count=0;
-		$arr=array();
+		$obj->links=array();
 		while($info = mysqli_fetch_array( $raw ))
 		{
 		// 	$arr[$count]=array('id'=>$info['id'] , 
@@ -152,24 +160,33 @@ class mysql_link extends mysql{
 		// 		'description'=>$info['description'] , 
 		// 		'imagelink'=>$info['imagelink'],
 		// 		'posttime'=>$info['posttime']);
-			$arr[$count] = $info;
+			$obj->links[$count] = $info;
 			$count++;
 		}
-		return $arr;
+		return $obj;
 	}
 
 	public function get_all_personal_links($begin,$limit)
 	{
+		$obj = new stdClass();
+		$obj->start_offset=$begin;
+		$obj->end_offset=$begin+$limit;
+		
 		$user_id = $_SESSION['user_id'];
+		///i just want a count here:
+		$allRaw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table WHERE user_id LIKE $user_id ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		$obj->total_count = mysqli_num_rows($allRaw);
+
+		//now actullay get the ones i want
 		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table WHERE user_id LIKE $user_id ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
 		$count=0;
-		$arr=array();
+		$obj->links=array();
 		while($info = mysqli_fetch_array( $raw ))
 		{
-			$arr[$count] = $info;
+			$obj->links[$count] = $info;
 			$count++;
 		}
-		return $arr;
+		return $obj;
 	}
 
 	public function get_tags()

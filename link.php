@@ -63,36 +63,62 @@ function tag_html($tag_data)
 
 	return $s;
 }
+function paging_info($total_count,$begin,$end)
+{
+	$d= new stdClass();//'<div class="paging_container">';
+	$d->total_count = $total_count;
+	$d->begin = $begin;
+	$d->end = $end;
+	return $d;
+}
+function reached_end_html()
+{
+	$s='<div class="reached_end">How Awesome, you have scrolled to the end</div>';
 
-function get_focused_links($focus=true)
+	return $s;
+}
+function get_focused_links($focus=true,$payload)
 {
 	///first stop on making the link page. This is where we determine how to look into the database
 	$mysql = new mysql_link();
+	$fetched_link_data;//includes links array and total links
 	$fetched_links;
+
 	if($focus)
 	{
-		$fetched_links = $mysql->get_all_personal_links(0,10);
+		$fetched_link_data = $mysql->get_all_personal_links($payload->begin,$payload->limit);
+		$fetched_links = $fetched_link_data->links;
 	}
 	else
 	{
-		$fetched_links = $mysql->get_all_public_links(0,10);
+		$fetched_link_data = $mysql->get_all_public_links($payload->begin,$payload->limit);
+		$fetched_links = $fetched_link_data->links;
 	}
 
-	$s=$mysql->errMsg;
+	$data = new stdClass();
+	$data->html = $mysql->errMsg;
 
 	if(count($fetched_links)<1)
 	{
-		$s.="Unbeleivable, there are no links here.";
+		$data->html.="Unbeleivable, there are no links here.";
 	}
 	else
 	{
 		for($i=0;$i<count($fetched_links); $i++)
 		{
-			$s.=link_html($fetched_links[$i]);
+			$data->html.=link_html($fetched_links[$i]);
 		}
 	}
+	
+	///now make the page footer
+	$data->paging = paging_info($fetched_link_data->total_count,$fetched_link_data->start_offset,$fetched_link_data->end_offset);
+	//make a happy greeting for reaching the end
+	if($fetched_link_data->end_offset>=$fetched_link_data->total_count)
+	{
+		$data->html.=reached_end_html();
+	}
 
-	echo $s;
+	echo json_encode($data);
 
 }
 
@@ -233,12 +259,12 @@ if ( isset($_GET['q'])  )
 		//test here to show personal, or all
 		if(isset($_SESSION['logged_in']))
 		{
-			echo get_focused_links();
+			echo get_focused_links(true,json_decode($_GET['payload']));
 		}
 		else
 		{
 			//json_decode($_GET['payload']
-			echo get_focused_links(false);
+			echo get_focused_links(false,json_decode($_GET['payload']));
 		}
 	}
 	if($_GET['q']=='tags_page')

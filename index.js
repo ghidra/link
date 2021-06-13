@@ -1,5 +1,5 @@
 a = new rad.ajax();
-
+wait=false;///this hopefully keeps us from keeping looking when we reach end of page
 function logout(){
 	a.get(
 		"link.php",
@@ -78,23 +78,32 @@ function process_new_link()
 	}
 }
 
-function links_page(refresh){
-	var obj ={};//empty for now
+function links_page(refresh,begin,limit){
+	var begin_id = (begin)?begin:0;
+	var limit_id = (limit)?limit:10;
+	var obj ={'begin':begin_id,'limit':limit_id};
 	a.get(
 		"link.php",
 		"q=links_page&payload="+JSON.stringify(obj),
 		function(lamda){
+			//console.log(lamda);
+			data = JSON.parse(lamda);
 			var el = document.getElementById("links");
 			if(refresh)
 			{
-				el.innerHTML=lamda;
+				el.innerHTML=data.html;//lamda;
 			}
 			else
 			{
-				el.innerHTML+=lamda;
+				el.innerHTML+=data.html;
 			}
+			//update the paging information
+			document.getElementById("total_links_count").innerHTML = data.paging.total_count;
+			document.getElementById("start_offset").innerHTML = data.paging.begin;
+			document.getElementById("end_offset").innerHTML = data.paging.end; 
 			//new_link_page();
 			tags_page();
+			wait=false;
 		}
 	);
 }
@@ -122,3 +131,18 @@ window.onload=function(){
 	
 	///now lets load the links we have so far
 }
+///check if we scroll to the bottom of the page:
+window.onscroll = function(ev) {
+    if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
+        if(!wait){
+			wait=true;
+			var max_limit = Math.min(10,document.getElementById("total_links_count").innerHTML-document.getElementById("end_offset").innerHTML);
+			if(max_limit>0){
+				//console.log(document.getElementById("end_offset").innerHTML	);
+				//console.log(max_limit);
+				//console.log("-----");
+		        links_page(false,document.getElementById("end_offset").innerHTML,max_limit);
+    		}
+    	}
+    }
+};
