@@ -95,7 +95,27 @@ class mysql_link extends mysql{
 	// }
 	private function get_tag_id($tag)
 	{
-		return mysqli_query($this->conn,"SELECT tag_id FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find id of tag');
+		$query =  mysqli_query($this->conn,"SELECT tag_id FROM $this->mysql_tag_table WHERE tag LIKE '$tag'") or die ($this->errMsg .= 'error trying to find id of tag');
+		$id=-1;
+		if (mysqli_num_rows($query)==1){//i expect only 1
+			while($info = mysqli_fetch_array( $query ))
+			{
+				$id = $info['tag_id'];
+			}
+		}
+		return $id;
+	}
+	private function get_tag_name($tag_id)
+	{
+		$query =  mysqli_query($this->conn,"SELECT tag FROM $this->mysql_tag_table WHERE tag_id LIKE '$tag_id'") or die ($this->errMsg .= 'error trying to find name of tag');
+		$name='';
+		if (mysqli_num_rows($query)==1){//i expect only 1
+			while($info = mysqli_fetch_array( $query ))
+			{
+				$name = $info['tag'];
+			}
+		}
+		return $name;
 	}
 
 	//////////////////////////////////////////////
@@ -122,11 +142,12 @@ class mysql_link extends mysql{
 			//$query = "INSERT INTO $this->mysql_tag_table (tag, user, posttime) VALUES ('$tag','$user_id','$posttime')";
 			$query = "INSERT IGNORE INTO $this->mysql_tag_table (tag, user_id, posttime) VALUES ('$tag','$user_id','$posttime')";
 			mysqli_query($this->conn,$query) or die($this->errMsg .= 'Error, adding tag ' . mysqli_error($this->conn)); 
-			$tag_id = $this->conn->insert_id;
+			//$tag_id = $this->conn->insert_id;
 		//}
 		//else
 		//{
 			///the tag already exists.. i need to get the tag id value
+			//if()
 			$tag_id = $this->get_tag_id($tag);
 			//$this->get_tag_id($tag);
 		//}
@@ -138,7 +159,22 @@ class mysql_link extends mysql{
 	//////////////////////////////////////////////
 	// now get data from tables
 	//////////////////////////////////////////////
-
+	private function get_link_tag_relationship($link_id)
+	{
+		$query = mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_tag_table WHERE link_id LIKE '$link_id'") or die ($this->errMsg .= 'error trying to find tags: '. mysqli_error());
+		$count=0;
+		
+		$objarray = array();
+		while($info = mysqli_fetch_array( $query ))
+		{
+			$obj[$count] = new stdClass();
+			//now use the tag id to get the name of the tag
+			$obj[$count]->name=$this->get_tag_name($info['tag_id']);
+			$obj[$count]->id=$info['tag_id'];
+			$count++;
+		}
+		return $obj;
+	}
 	public function get_all_public_links($begin,$limit)
 	{
 		$obj = new stdClass();
@@ -152,6 +188,7 @@ class mysql_link extends mysql{
 		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links, or, there are NO LINKS to get: '. mysqli_error());
 		$count=0;
 		$obj->links=array();
+		$obj->tags=array();
 		while($info = mysqli_fetch_array( $raw ))
 		{
 		// 	$arr[$count]=array('id'=>$info['id'] , 
@@ -161,6 +198,8 @@ class mysql_link extends mysql{
 		// 		'imagelink'=>$info['imagelink'],
 		// 		'posttime'=>$info['posttime']);
 			$obj->links[$count] = $info;
+			$obj->tags[$count] = $this->get_link_tag_relationship($info['link_id']);
+
 			$count++;
 		}
 		return $obj;
@@ -181,9 +220,11 @@ class mysql_link extends mysql{
 		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table WHERE user_id LIKE $user_id ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
 		$count=0;
 		$obj->links=array();
+		$obj->tags=array();
 		while($info = mysqli_fetch_array( $raw ))
 		{
 			$obj->links[$count] = $info;
+			$obj->tags[$count] = $this->get_link_tag_relationship($info['link_id']);
 			$count++;
 		}
 		return $obj;

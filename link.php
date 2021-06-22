@@ -32,7 +32,7 @@ function new_link_page()
 }
 
 ////
-function link_html($link_data)
+function link_html($link_data,$tag_data=array())
 {
 	/*
 		$link_data['id']
@@ -42,10 +42,20 @@ function link_html($link_data)
 		$link_data['imagelink']
 		$link_data['private']
 		$link_data['posttime']
+
+		$tag_data[i]->name
+		$tag_data[i]->id
 	*/
+	//make the tag part first to insert later
+	$stags='';
+	for($i=0;$i<count($tag_data); $i++)
+	{
+		$stags.='<div class="link_tag">'.$tag_data[$i]->name.'</div>';//$tag_data[$i]
+	}
 	$s='<div class="container_link">
 		<a class="link_ahref" href="'.$link_data['url'].'" target="_blank"><div class="link_ahref_bg">'.$link_data['url'].'</div></a>
 		<div id="link_description">'.$link_data['description'].'</div>
+		<div class="link_tags_container">'.$stags.'</div>
 		<div id="link_posttime">'.$link_data['posttime'].'</div>
 	</div>';
 
@@ -83,17 +93,18 @@ function get_focused_links($focus=true,$payload)
 	$mysql = new mysql_link();
 	$fetched_link_data;//includes links array and total links
 	$fetched_links;
+	$fetched_tags;
 
 	if($focus)
 	{
 		$fetched_link_data = $mysql->get_all_personal_links($payload->begin,$payload->limit);
-		$fetched_links = $fetched_link_data->links;
 	}
 	else
 	{
 		$fetched_link_data = $mysql->get_all_public_links($payload->begin,$payload->limit);
-		$fetched_links = $fetched_link_data->links;
 	}
+	$fetched_links = $fetched_link_data->links;
+	$fetched_tags = $fetched_link_data->tags;
 
 	$data = new stdClass();
 	$data->html = $mysql->errMsg;
@@ -106,7 +117,14 @@ function get_focused_links($focus=true,$payload)
 	{
 		for($i=0;$i<count($fetched_links); $i++)
 		{
-			$data->html.=link_html($fetched_links[$i]);
+			if(count($fetched_tags)>=i)
+			{
+				$data->html.=link_html($fetched_links[$i],$fetched_tags[$i]);
+			}
+			else
+			{
+				$data->html.=link_html($fetched_links[$i]);
+			}
 		}
 	}
 	
@@ -164,7 +182,19 @@ function attemp_login($payload){
 /////////////////////
 
 //this method adds to the database... doesnt need to return anything, if successful, the links list is refreshed
-
+///test method to see if we are getting a tag propper
+/*
+function process_new_link($payload){
+	$s='';
+	$mysql = new mysql_link();
+	$tags = explode(",",$payload['new_tags']);
+	for($i=0;$i<count($tags); $i++)
+	{
+		$s.=$mysql->get_tag_id(trim($tags[$i])).'---';
+		
+	}
+	return $s;
+}*/
 function process_new_link($payload){
 
 	$localStatus = '';
@@ -193,7 +223,7 @@ function process_new_link($payload){
 	    }
 	    else 
 	    { 
-	          $final_url = 'http://'.$uurl;// return "*** / ***Match : ".$final_url;
+	        $final_url = 'http://'.$uurl;// return "*** / ***Match : ".$final_url;
 	    }
 	}
 	else 
