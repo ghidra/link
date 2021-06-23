@@ -1,5 +1,7 @@
 a = new rad.ajax();
 wait=false;///this hopefully keeps us from keeping looking when we reach end of page
+searchtag=null;///the tag we find in the search string
+
 function logout(){
 	a.get(
 		"link.php",
@@ -81,7 +83,7 @@ function process_new_link()
 function links_page(refresh,begin,limit){
 	var begin_id = (begin)?begin:0;
 	var limit_id = (limit)?limit:10;
-	var obj ={'begin':begin_id,'limit':limit_id};
+	var obj ={'begin':begin_id,'limit':limit_id,'tag':searchtag};
 	a.get(
 		"link.php",
 		"q=links_page&payload="+JSON.stringify(obj),
@@ -118,13 +120,27 @@ function tags_page(){
 	);
 }
 
+////called from the page
+function load_tagid_page(tagid){
+	//console.log(tag);
+	window.location.search = 'tagid='+tagid;
+}
+
 window.onload=function(){
+	//is there something in the search string
+	
 	///lets set up the login part
 	a.get(
 		"link.php",
 		"q=login",
 		function(lamda){
 			document.getElementById("login").innerHTML = lamda;
+
+			params = new URLSearchParams(document.location.search.substring(1));
+			searchtag = parseInt(params.get("tagid"), 10);
+			if(searchtag){
+				console.log("we need to load tagid page: "+searchtag);
+			}
 			links_page(true);
 		}
 	);
@@ -141,7 +157,7 @@ window.onscroll = function(ev) {
 				//console.log(document.getElementById("end_offset").innerHTML	);
 				//console.log(max_limit);
 				//console.log("-----");
-		        links_page(false,document.getElementById("end_offset").innerHTML,max_limit);
+		        links_page(false,null,document.getElementById("end_offset").innerHTML,max_limit);
     		}
     	}
     }

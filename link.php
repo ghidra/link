@@ -50,12 +50,12 @@ function link_html($link_data,$tag_data=array())
 	$stags='';
 	for($i=0;$i<count($tag_data); $i++)
 	{
-		$stags.='<div class="link_tag">'.$tag_data[$i]->name.'</div>';//$tag_data[$i]
+		$stags.='<div class="link_tag" onclick="javascrpt:load_tagid_page(\''.$tag_data[$i]->id.'\')">'.$tag_data[$i]->name.'</div>';//$tag_data[$i]
 	}
 	$s='<div class="container_link">
 		<a class="link_ahref" href="'.$link_data['url'].'" target="_blank"><div class="link_ahref_bg">'.$link_data['url'].'</div></a>
 		<div id="link_description">'.$link_data['description'].'</div>
-		<div class="link_tags_container">'.$stags.'</div>
+		<div class="container_link_tags">'.$stags.'</div>
 		<div id="link_posttime">'.$link_data['posttime'].'</div>
 	</div>';
 
@@ -69,7 +69,7 @@ function tag_html($tag_data)
 		$tag_data['user']
 		$tag_data['posttime']
 	*/
-	$s='<div class="container_tag">'.$tag_data['tag'].'</div>';
+	$s='<div class="container_tag" onclick="javascrpt:load_tagid_page(\''.$tag_data["tag_id"].'\')">'.$tag_data['tag'].'</div>';
 
 	return $s;
 }

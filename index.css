@@ -54,7 +54,7 @@ body
   /*height: 100px;*/
   background-color: var(--bright-color);
   border-radius: 3px;
-  float: left
+  float: left;
 }
 
 #container_right
@@ -103,6 +103,11 @@ body
   overflow-y: hidden;
   margin-top: 10px;
   border-radius: 3px;
+  cursor: pointer;
+}
+.container_link_tags
+{
+  /*margin-left: 40px;*/
 }
 .link_ahref_bg{
   padding:10px;
@@ -130,6 +135,17 @@ body
   margin-top: 2px;
   border-radius: 3px;
   font-size: x-small;
+  clear: left;
+}
+.link_tag
+{
+  padding: 2 10 2 10px;
+  float: left;
+  font-size: small;
+  background-color: var(--darkish-color);
+  border-radius: 3px;
+  margin-left: 10px;
+  cursor: pointer;
 }
 
 /*-----------*/
