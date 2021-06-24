@@ -97,11 +97,11 @@ function get_focused_links($focus=true,$payload)
 
 	if($focus)
 	{
-		$fetched_link_data = $mysql->get_all_personal_links($payload->begin,$payload->limit);
+		$fetched_link_data = $mysql->get_all_personal_links($payload->begin,$payload->limit,$payload->tag);
 	}
 	else
 	{
-		$fetched_link_data = $mysql->get_all_public_links($payload->begin,$payload->limit);
+		$fetched_link_data = $mysql->get_all_public_links($payload->begin,$payload->limit,$payload->tag);
 	}
 	$fetched_links = $fetched_link_data->links;
 	$fetched_tags = $fetched_link_data->tags;

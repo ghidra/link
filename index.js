@@ -154,10 +154,11 @@ window.onscroll = function(ev) {
 			wait=true;
 			var max_limit = Math.min(10,document.getElementById("total_links_count").innerHTML-document.getElementById("end_offset").innerHTML);
 			if(max_limit>0){
+				//console.log(document.getElementById("total_links_count").innerHTML);
 				//console.log(document.getElementById("end_offset").innerHTML	);
 				//console.log(max_limit);
 				//console.log("-----");
-		        links_page(false,null,document.getElementById("end_offset").innerHTML,max_limit);
+		        links_page(false,document.getElementById("end_offset").innerHTML,max_limit);
     		}
     	}
     }

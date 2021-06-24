@@ -33,7 +33,10 @@ body
   background-color: var(--light-color);
   font-family: "Arial", Arial, sans-serif;
 }
-
+#invisible
+{
+  display: none;
+}
 #container
 {
   margin: 0 auto;

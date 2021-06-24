@@ -175,17 +175,52 @@ class mysql_link extends mysql{
 		}
 		return $obj;
 	}
-	public function get_all_public_links($begin,$limit)
+	public function get_all_public_links($begin,$limit,$tag)
 	{
 		$obj = new stdClass();
 		$obj->start_offset=$begin;
 		$obj->end_offset=$begin+$limit;
 		
 		///i just want a count here:
-		$allRaw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		if(is_null($tag))
+		{
+			$allRaw =  mysqli_query($this->conn,"SELECT link_id 
+				FROM $this->mysql_link_table 
+				ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		}
+		else
+		{
+			$allRaw =  mysqli_query($this->conn,"SELECT * 
+				FROM $this->mysql_link_table
+				WHERE link_id IN (
+					SELECT link_id
+					FROM $this->mysql_link_tag_table
+					WHERE tag_id LIKE $tag
+				) 
+				ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+
+		}
 		$obj->total_count = mysqli_num_rows($allRaw);
 
-		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links, or, there are NO LINKS to get: '. mysqli_error());
+		if(is_null($tag))
+		{
+			$raw =  mysqli_query($this->conn,"SELECT * 
+				FROM $this->mysql_link_table 
+				ORDER BY link_id 
+				DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links, or, there are NO LINKS to get: '. mysqli_error());
+		}
+		else
+		{
+			$raw =  mysqli_query($this->conn,"SELECT * 
+				FROM $this->mysql_link_table 
+				WHERE link_id IN (
+					SELECT link_id
+					FROM $this->mysql_link_tag_table
+					WHERE tag_id LIKE $tag
+				) 
+				ORDER BY link_id 
+				DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all public links, or, there are NO LINKS to get: '. mysqli_error());
+		}
 		$count=0;
 		$obj->links=array();
 		$obj->tags=array();
@@ -205,19 +240,59 @@ class mysql_link extends mysql{
 		return $obj;
 	}
 
-	public function get_all_personal_links($begin,$limit)
+	public function get_all_personal_links($begin,$limit,$tag)
 	{
 		$obj = new stdClass();
 		$obj->start_offset=$begin;
 		$obj->end_offset=$begin+$limit;
 		
 		$user_id = $_SESSION['user_id'];
+
 		///i just want a count here:
-		$allRaw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table WHERE user_id LIKE $user_id ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		if(is_null($tag))
+		{
+			$allRaw =  mysqli_query($this->conn,"SELECT link_id 
+				FROM $this->mysql_link_table 
+				WHERE user_id LIKE $user_id 
+				ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		}
+		else
+		{
+			$allRaw =  mysqli_query($this->conn,"SELECT * 
+				FROM $this->mysql_link_table
+				WHERE link_id IN (
+					SELECT link_id
+					FROM $this->mysql_link_tag_table
+					WHERE tag_id LIKE $tag
+				)
+				AND user_id LIKE $user_id 
+				ORDER BY link_id") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		}
 		$obj->total_count = mysqli_num_rows($allRaw);
 
+
 		//now actullay get the ones i want
-		$raw =  mysqli_query($this->conn,"SELECT * FROM $this->mysql_link_table WHERE user_id LIKE $user_id ORDER BY link_id DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		if(is_null($tag))
+		{
+			$raw =  mysqli_query($this->conn,"SELECT * 
+				FROM $this->mysql_link_table 
+				WHERE user_id LIKE $user_id 
+				ORDER BY link_id 
+				DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		}
+		else
+		{
+			$raw =  mysqli_query($this->conn,"SELECT * 
+				FROM $this->mysql_link_table 
+				WHERE link_id IN (
+					SELECT link_id
+					FROM $this->mysql_link_tag_table
+					WHERE tag_id LIKE $tag
+				)
+				AND user_id LIKE $user_id
+				ORDER BY link_id 
+				DESC LIMIT $begin, $limit") or die($this->errMsg = 'Error, getting all personal links, or, there are NO LINKS to get: '. mysqli_error());
+		}
 		$count=0;
 		$obj->links=array();
 		$obj->tags=array();
