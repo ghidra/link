@@ -8,11 +8,14 @@ class login{
 	var $errMsg = '';
 	var $mysql;
 	var $user_table = '';
+	///
+	var $allow_multi_user = false;
 
 	public function __construct($mysql,$post){
 
 		$this->mysql=$mysql;
 		$this->user_table = $mysql->user_table;
+		$this->allow_multi_user = $mysql->allow_multi_user;
 
 		if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == false)
 	      	$this->check_post_data($post);
@@ -76,15 +79,19 @@ class login{
  			</form>
  			</div>';
 
- 			$page.='<div class="login_form">
- 			register new user:
- 			<form action="" method="post" name="login_form_new_user" id="login_form_new_user">
- 			<input name="setuser" type="text" id="setuser" value="" placeholder="user name" class="login_input">
- 			<input name="setpw1" type="password" id="setpw1" value="" placeholder="password" class="login_input">
- 			<input name="setpw2" type="password" id="setpw2" value="" placeholder="confirm password" class="login_input">
- 			<input type="button" name="Submit" value="Submit" onclick="process_login(\'login_form_new_user\')">
- 			</form>
- 			</div>';
+ 			if($this->allow_multi_user)
+ 			{
+
+	 			$page.='<div class="login_form">
+	 			register new user:
+	 			<form action="" method="post" name="login_form_new_user" id="login_form_new_user">
+	 			<input name="setuser" type="text" id="setuser" value="" placeholder="user name" class="login_input">
+	 			<input name="setpw1" type="password" id="setpw1" value="" placeholder="password" class="login_input">
+	 			<input name="setpw2" type="password" id="setpw2" value="" placeholder="confirm password" class="login_input">
+	 			<input type="button" name="Submit" value="Submit" onclick="process_login(\'login_form_new_user\')">
+	 			</form>
+	 			</div>';
+ 			}
 		}
 		return $page;
 	}

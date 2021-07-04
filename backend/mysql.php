@@ -6,10 +6,13 @@ class mysql{
 	var $user_name = '';///incase we find it... lets just save this temporarily
 	var $user_id = -1;///same with this
 	var $errMsg = '';
+	///
+	var $allow_multi_user = false;
 
 	public function __construct(){
 		include('mysql_login.php');
 		$this->user_table = $mysql_user_table;
+		$this->allow_multi_user = $mysql_settings_allow_multi_user;
 		$this->conn = mysqli_connect ($mysql_host, $mysql_user, $mysql_pass) or die ("I cannot connect to the database because: " . mysqli_error($this->conn));
 		mysqli_select_db ($this->conn,$mysql_database_name) or die ("I cannot select the database '$mysql_database_name' because: " . mysqli_error($this->conn));
 	}
